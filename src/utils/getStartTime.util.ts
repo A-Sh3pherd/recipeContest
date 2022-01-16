@@ -1,0 +1,1 @@
+export const getStartTime = (): number => new Date().getTime()
