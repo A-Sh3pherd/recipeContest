@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import 'dotenv/config';
 import { chunk } from "lodash";
 import { Browser, Page } from "puppeteer";
@@ -43,6 +44,7 @@ export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser:
     }
     reference.recipesRefrence.push(...moreRefs);
     // Closing the browser
+    console.log('\n' + chalk.red(category.name) + ': ' + chalk.yellow(reference.recipesRefrence.flat().length));
     return reference;
 };
 

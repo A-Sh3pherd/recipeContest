@@ -4,6 +4,7 @@
   "description": "Recipe contest in Harel insurance & Finance",
   "main": "dist/index.js",
   "scripts": {
+    "start": "ts-node src/app",
     "dev": "yarn tsc && nodemon dist/app.js",
     "watch": "yarn tsc --watch"
   },
