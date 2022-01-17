@@ -10,15 +10,15 @@ import { RecipeRefrence, RefrenceToAllRecipes } from "../types/RefrenceToAllReci
 // Getting a refrence to all of the recipes in a category
 export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser: Browser, category: CategoryRefrence) => {
 
+    const thisPageRefs = await getRefrenceToAllRecipesInPage(page);
     const exist = await checkIfPaginationExist(page);
 
-    const reference: RefrenceToAllRecipes = {
-        categoryName: category.name,
-        recipesRefrence: await getRefrenceToAllRecipesInPage(page),
-        isPaginationExist: exist
-    };
+    if (!exist) return thisPageRefs;
 
-    if (!exist) return reference;
+    const references: RefrenceToAllRecipes = [];
+    references.push(...thisPageRefs.flat());
+
+    if (!exist) return references;
 
     const promises: any[] = [];
 
@@ -27,8 +27,8 @@ export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser:
         const promise = () => createPromise({
             pageNumber: i,
             browser,
-            baseUrl: category.url,
-            initialArray: reference.recipesRefrence
+            baseUrl: category,
+            initialArray: references
         });
         promises.push(promise);
     }
@@ -41,10 +41,10 @@ export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser:
             promises.map((promise) => promise())
         );
     }
-    reference.recipesRefrence.push(...moreRefs);
+    references.push(...moreRefs);
 
     // console.log('\n' + chalk.red(category.name) + ': ' + chalk.yellow(reference.recipesRefrence.flat().length));
 
-    return reference;
+    return references;
 };
 

@@ -1,7 +1,3 @@
-export interface RefrenceToAllRecipes {
-    categoryName: string;
-    recipesRefrence: RecipeRefrence[];
-    isPaginationExist: number;
-}
+export type RefrenceToAllRecipes = RecipeRefrence[];
 
 export type RecipeRefrence = string;

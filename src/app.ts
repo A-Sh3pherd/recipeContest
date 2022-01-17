@@ -8,7 +8,7 @@ import { getRecipeDataFromPage } from './handlers/getRecipeDataFromPage';
 import { getRefrenceToAllRecipesInCategoryPage } from './handlers/getRefrenceToAllRecipesInCategory';
 import { CategoryRefrence } from './types/Category.interface';
 import { Recipe } from './types/Recipe.interface';
-import { RefrenceToAllRecipes } from './types/RefrenceToAllRecipes';
+import { RecipeRefrence, RefrenceToAllRecipes } from './types/RefrenceToAllRecipes';
 import { getMethodDuration } from './utils/getMethodDuration.util';
 import { getStartTime } from './utils/getStartTime.util';
 import { saveRecipes } from './utils/fs/saveRecipes';
@@ -51,7 +51,7 @@ const { white, red, green, yellow } = chalk;
     // Step 2
     const refrecneToAllCategories: CategoryRefrence[] = await getAllCategories(page);
     // Step 3
-    const refrenceToAllRecipes: RefrenceToAllRecipes[] = [];
+    const refrenceToAllRecipes: RefrenceToAllRecipes = [];
 
     const step3 = ora().start();
 
@@ -62,22 +62,22 @@ const { white, red, green, yellow } = chalk;
         // Preventing timeout errors in advance (thank yourself later)
         newPage.setDefaultNavigationTimeout(0);
         // Navigating to a category
-        await newPage.goto(category.url);
+        await newPage.goto(category);
         // Get ref to all category in page
         const reference = await getRefrenceToAllRecipesInCategoryPage(newPage, browser, category);
 
-        refrenceToAllRecipes.push(reference);
+        refrenceToAllRecipes.push(...reference);
         await newPage.close();
     }
     step3.succeed('Got a reference to all categories');
 
     const step4 = ora('Mapping recipe references').start();
     // Step 4
-    const recipesRef = refrenceToAllRecipes.map(({ recipesRefrence }) => recipesRefrence).flat();
     step4.succeed('Finished mapping recipe references');
 
     // Step 5
-    const chunkedRecipes = chunk(recipesRef, +process.env.CHUNK_SIZE! || 10);
+    const allRefrences: Set<RecipeRefrence> = new Set([ ...refrenceToAllRecipes ]);
+    const chunkedRecipes = chunk([ ...allRefrences ].flat(), +process.env.CHUNK_SIZE! || 10);
 
     const recipesFromRefrencedCategory: Recipe[] = [];
 
@@ -121,7 +121,7 @@ const { white, red, green, yellow } = chalk;
 
     await saveRecipes(recipesFromRefrencedCategory);
     await updateBrokenUrls(await getBrokenUrls());
-    await saveUrls(recipesRef);
+    await saveUrls(refrenceToAllRecipes.flat());
 
     ora().succeed(`Process took: ${ getMethodDuration(timer) }`);
     console.log(white('========================'));
