@@ -8,11 +8,13 @@ import { getRecipeDataFromPage } from './handlers/getRecipeDataFromPage';
 import { getRefrenceToAllRecipesInCategoryPage } from './handlers/getRefrenceToAllRecipesInCategory';
 import { CategoryRefrence } from './types/Category.interface';
 import { Recipe } from './types/Recipe.interface';
-import { RefrenceToAllRecipes } from './types/RefrenceToAllRecipesInCategory.interface';
-import { brokenUrls } from './utils/brokenUrls';
+import { RefrenceToAllRecipes } from './types/RefrenceToAllRecipes';
 import { getMethodDuration } from './utils/getMethodDuration.util';
 import { getStartTime } from './utils/getStartTime.util';
-import { saveRecipes } from './utils/saveRecipes';
+import { saveRecipes } from './utils/fs/saveRecipes';
+import { getBrokenUrls } from './utils/fs/getBrokenUrls';
+import { updateBrokenUrls } from './utils/fs/updateBrokenUrls';
+import { saveUrls } from './utils/fs/saveUrls';
 
 /*
 * Flow is as below:
@@ -43,7 +45,9 @@ const { white, red, green, yellow } = chalk;
     console.log(`Chunk size: ${ green(`${ process.env.CHUNK_SIZE }` || 'env was not provided!!!') }`);
     // Step 1
     const timer = getStartTime();
-    const { page, browser } = await startPuppeteer({ headless: true }); // Look at the function to see the options
+    const brokenUrls = await getBrokenUrls();
+
+    const { page, browser } = await startPuppeteer({}); // Look at the function to see the options
     // Step 2
     const refrecneToAllCategories: CategoryRefrence[] = await getAllCategories(page);
     // Step 3
@@ -65,12 +69,13 @@ const { white, red, green, yellow } = chalk;
         refrenceToAllRecipes.push(reference);
         await newPage.close();
     }
-
     step3.succeed('Got a reference to all categories');
-    // Step 4
+
     const step4 = ora('Mapping recipe references').start();
+    // Step 4
     const recipesRef = refrenceToAllRecipes.map(({ recipesRefrence }) => recipesRefrence).flat();
     step4.succeed('Finished mapping recipe references');
+
     // Step 5
     const chunkedRecipes = chunk(recipesRef, +process.env.CHUNK_SIZE! || 10);
 
@@ -112,12 +117,12 @@ const { white, red, green, yellow } = chalk;
     }
     step5.succeed(`Done with all chunks`);
     // Final step
-    console.log(yellow('========================'));
-    ;
-    await saveRecipes(recipesFromRefrencedCategory);
-    console.log(white('========================'));
-    ;
     await browser.close();
+
+    await saveRecipes(recipesFromRefrencedCategory);
+    await updateBrokenUrls(await getBrokenUrls());
+    await saveUrls(recipesRef);
+
     ora().succeed(`Process took: ${ getMethodDuration(timer) }`);
     console.log(white('========================'));
     ;

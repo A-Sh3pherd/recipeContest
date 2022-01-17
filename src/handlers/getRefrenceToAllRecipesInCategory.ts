@@ -1,12 +1,11 @@
-import chalk from 'chalk';
 import 'dotenv/config';
 import { chunk } from "lodash";
 import { Browser, Page } from "puppeteer";
 import { checkIfPaginationExist } from "../functions/pagination/checkIfPaginationExist";
 import { createPromise } from "../functions/pagination/createPromise.pagination";
 import { getRefrenceToAllRecipesInPage } from "../functions/recipes/getRefrenceToAllRecipesInPage";
-import { CategoryRefrence, RecipeRefrence } from "../types/Category.interface";
-import { RefrenceToAllRecipes } from "../types/RefrenceToAllRecipesInCategory.interface";
+import { CategoryRefrence } from "../types/Category.interface";
+import { RecipeRefrence, RefrenceToAllRecipes } from "../types/RefrenceToAllRecipes";
 
 // Getting a refrence to all of the recipes in a category
 export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser: Browser, category: CategoryRefrence) => {
@@ -43,8 +42,9 @@ export const getRefrenceToAllRecipesInCategoryPage = async (page: Page, browser:
         );
     }
     reference.recipesRefrence.push(...moreRefs);
-    // Closing the browser
-    console.log('\n' + chalk.red(category.name) + ': ' + chalk.yellow(reference.recipesRefrence.flat().length));
+
+    // console.log('\n' + chalk.red(category.name) + ': ' + chalk.yellow(reference.recipesRefrence.flat().length));
+
     return reference;
 };
 

@@ -1,5 +1,5 @@
 import { Browser } from "puppeteer";
-import { RecipeRefrence } from "../../types/Category.interface";
+import { RecipeRefrence } from "../../types/RefrenceToAllRecipes";
 import { getRefrenceToAllRecipesInPage } from "../recipes/getRefrenceToAllRecipesInPage";
 
 interface CreatePromiseOptions {

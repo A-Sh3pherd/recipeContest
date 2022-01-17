@@ -1,5 +1,5 @@
 import { Page } from "puppeteer";
-import { RecipeRefrence } from "../../types/Category.interface";
+import { RecipeRefrence } from "../../types/RefrenceToAllRecipes";
 export const getRefrenceToAllRecipesInPage = async (page: Page) => {
     const result = await page.evaluate(() => {
         const recipes = document.querySelectorAll('.s-recipe-category__col > a');

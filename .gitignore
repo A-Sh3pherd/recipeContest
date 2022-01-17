@@ -1,5 +1,6 @@
 node_modules
 .DS_Store
 notebook
-Recipes/**
+output/Recipes/**
+output/urls.json
 dist

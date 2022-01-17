@@ -6,6 +6,7 @@ export const startPuppeteer = async ({ headless }: StartConfig) => {
     const browser = await puppeteer.launch({
         headless
     });
+
     const page = await browser.newPage();
 
     headless && await page.setViewport({
